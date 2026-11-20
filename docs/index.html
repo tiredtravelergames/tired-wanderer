@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Усталый путник — пиксельная action-RPG</title>
+<meta name="description" content="Пиксельная action-RPG о страннике, который нашёл в таверне портал в подземелья. Десять классов, подземелья и кооператив до четырёх игроков. Бесплатно для Windows, macOS и Linux.">
+<meta property="og:title" content="Усталый путник">
+<meta property="og:description" content="Пиксельная action-RPG о страннике, который нашёл в таверне портал в подземелья. Один или с друзьями.">
+<meta property="og:image" content="https://tiredtravelergames.github.io/tired-wanderer/screenshots/dungeon.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0b0914">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;700&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+:root {
+  --sky-top: #09081a;
+  --sky-mid: #160f22;
+  --sky-low: #21141a;
+  --ground: #0e0b12;
+  --gold: #f2c45a;
+  --gold-hi: #ffe39a;
+  --ember: #ff9a3c;
+  --ember-deep: #c2551d;
+  --stone: #1b1824;
+  --stone-hi: #2a2536;
+  --line: #3a3048;
+  --text: #ece4d6;
+  --muted: #a99e8c;
+  --moon: #c9d2ee;
+  --pixel: "Press Start 2P", monospace;
+  --body: "Rubik", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--text);
+  font: 17px/1.65 var(--body);
+  background: var(--sky-top);
+  overflow-x: hidden;
+}
+img { image-rendering: pixelated; max-width: 100%; display: block; }
+a { color: var(--gold); }
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 72px 16px 120px;
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 78%, rgba(255,140,50,.28), transparent 70%),
+    linear-gradient(var(--sky-top) 0%, var(--sky-mid) 55%, var(--sky-low) 82%, var(--ground) 100%);
+  overflow: hidden;
+  isolation: isolate;
+}
+.stars, .embers { position: absolute; inset: 0; pointer-events: none; z-index: -1; }
+.star { position: absolute; width: 2px; height: 2px; background: #dfe4ff; animation: twinkle var(--d) ease-in-out infinite; opacity: .2; }
+@keyframes twinkle { 50% { opacity: .9; } }
+.moon {
+  position: absolute; top: 9%; right: 9%; width: 64px; height: 64px; z-index: -1;
+  background: var(--moon);
+  box-shadow: 0 0 0 14px rgba(140,160,240,.07), 0 0 0 30px rgba(140,160,240,.05), 0 0 0 48px rgba(140,160,240,.03);
+  clip-path: polygon(25% 0,75% 0,75% 6%,88% 6%,88% 12%,94% 12%,94% 25%,100% 25%,100% 75%,94% 75%,94% 88%,88% 88%,88% 94%,75% 94%,75% 100%,25% 100%,25% 94%,12% 94%,12% 88%,6% 88%,6% 75%,0 75%,0 25%,6% 25%,6% 12%,12% 12%,12% 6%,25% 6%);
+}
+.moon::before, .moon::after { content: ""; position: absolute; background: #aeb8d8; }
+.moon::before { width: 14px; height: 14px; left: 16px; top: 18px; }
+.moon::after { width: 9px; height: 9px; right: 14px; bottom: 16px; }
+.ember { position: absolute; bottom: 8%; width: 3px; height: 3px; background: var(--ember); opacity: 0; animation: rise var(--d) linear infinite; animation-delay: var(--delay); }
+@keyframes rise {
+  0% { transform: translate(0,0); opacity: 0; }
+  12% { opacity: .9; }
+  100% { transform: translate(var(--dx), -80vh); opacity: 0; }
+}
+.hills { position: absolute; left: 0; right: 0; bottom: 0; height: 26%; z-index: -1;
+  background:
+    linear-gradient(transparent 60%, var(--ground) 60%),
+    radial-gradient(ellipse 30% 70% at 15% 100%, #120d1d 70%, transparent 71%),
+    radial-gradient(ellipse 35% 60% at 85% 100%, #120d1d 70%, transparent 71%),
+    radial-gradient(ellipse 40% 80% at 50% 110%, #15101f 70%, transparent 71%);
+}
+.hero-inner { text-align: center; max-width: 860px; }
+.logo {
+  width: 168px; margin: 0 auto 28px;
+  filter: drop-shadow(0 0 32px rgba(255,150,60,.45)) drop-shadow(0 8px 0 rgba(0,0,0,.4));
+  animation: float 5s ease-in-out infinite;
+}
+@keyframes float { 50% { transform: translateY(-8px); } }
+h1 {
+  font: 400 clamp(30px, 7vw, 64px)/1.25 var(--pixel);
+  margin: 0;
+  color: var(--gold);
+  text-shadow: 3px 3px 0 #6b3510, 0 0 28px rgba(255,170,70,.45);
+  letter-spacing: 1px;
+}
+.tagline { color: var(--muted); font-size: clamp(16px, 2.4vw, 20px); margin: 22px auto 0; max-width: 640px; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+.badge { font: 10px/1 var(--pixel); padding: 8px 10px; border: 2px solid var(--line); color: var(--muted); background: rgba(0,0,0,.25); }
+
+.downloads { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 40px; }
+.btn {
+  --c: var(--stone-hi);
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 16px 22px;
+  font: 12px/1.3 var(--pixel);
+  color: var(--text); text-decoration: none;
+  background: var(--c);
+  border: 3px solid #000;
+  box-shadow: inset -4px -4px 0 rgba(0,0,0,.35), inset 4px 4px 0 rgba(255,255,255,.08), 0 6px 0 #000;
+  transition: transform .08s, box-shadow .08s, filter .15s;
+}
+.btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
+.btn:active { transform: translateY(4px); box-shadow: inset -4px -4px 0 rgba(0,0,0,.35), inset 4px 4px 0 rgba(255,255,255,.08), 0 2px 0 #000; }
+.btn small { display: block; font: 500 12px/1.2 var(--body); color: var(--muted); margin-top: 6px; letter-spacing: 0; }
+.btn.primary { --c: linear-gradient(#f0b54c, #c9711f); color: #2a1305; }
+.btn.primary small { color: #5a2c0c; }
+.btn svg { width: 22px; height: 22px; flex: none; }
+.version { margin-top: 18px; font-size: 14px; color: var(--muted); }
+.version a { color: var(--muted); }
+.scroll-hint { position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); font: 10px var(--pixel); color: var(--muted); text-decoration: none; animation: float 2.4s ease-in-out infinite; }
+
+/* ---------- sections ---------- */
+section { padding: 96px 16px; }
+.wrap { max-width: 1120px; margin: 0 auto; }
+.alt { background: linear-gradient(var(--ground), #120e18 30%, #120e18 70%, var(--ground)); }
+.plain { background: var(--ground); }
+h2 {
+  font: 400 clamp(18px, 3.4vw, 28px)/1.4 var(--pixel);
+  color: var(--gold); margin: 0 0 14px; text-align: center;
+  text-shadow: 2px 2px 0 #5a2c0c;
+}
+.lead { text-align: center; color: var(--muted); max-width: 680px; margin: 0 auto 48px; }
+
+.frame {
+  border: 4px solid #000;
+  box-shadow: 0 0 0 3px var(--line), 0 18px 40px rgba(0,0,0,.6);
+  background: #000;
+}
+.gallery { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start; }
+.gallery .side { display: grid; gap: 20px; }
+.gallery figure { margin: 0; cursor: zoom-in; }
+.gallery img { width: 100%; height: auto; image-rendering: auto; }
+.gallery figcaption { font: 10px var(--pixel); color: var(--muted); padding: 10px 2px 0; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+.card {
+  background: var(--stone);
+  border: 3px solid #000;
+  box-shadow: inset 0 0 0 2px var(--line);
+  padding: 22px 22px 20px;
+  transition: transform .15s, box-shadow .15s;
+}
+.card:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 2px #6b5130, 0 10px 0 rgba(0,0,0,.35); }
+.card .ico { font-size: 28px; line-height: 1; margin-bottom: 14px; }
+.card h3 { font: 11px/1.5 var(--pixel); color: var(--gold-hi); margin: 0 0 10px; }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+.classes { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.cls small { display: block; font: 13px/1.3 var(--body); color: var(--muted); margin-top: 8px; letter-spacing: 0; text-transform: none; }
+.cls { font: 10px var(--pixel); padding: 12px 14px; text-align: center; min-width: 170px; background: var(--stone); border: 2px solid var(--line); color: var(--text); }
+.cls:nth-child(odd) { border-color: #5a4426; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin: 48px 0 0; }
+.stat { text-align: center; padding: 20px 8px; border: 2px dashed var(--line); }
+.stat b { display: block; font: 22px/1.2 var(--pixel); color: var(--ember); margin-bottom: 10px; }
+.stat span { font-size: 14px; color: var(--muted); }
+
+.coop { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.steps { counter-reset: s; list-style: none; padding: 0; margin: 0; }
+.steps li { counter-increment: s; position: relative; padding: 0 0 18px 52px; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: -2px; width: 34px; height: 34px; display: grid; place-items: center; font: 12px var(--pixel); color: #2a1305; background: var(--gold); border: 3px solid #000; }
+.note { background: var(--stone); border-left: 4px solid var(--ember-deep); padding: 16px 18px; color: var(--muted); font-size: 15px; }
+code { font: 13px/1.4 ui-monospace, Menlo, monospace; background: #000; color: var(--gold-hi); padding: 2px 6px; }
+
+.keys { width: 100%; border-collapse: collapse; font-size: 15px; }
+.keys td { padding: 9px 10px; border-bottom: 1px solid var(--line); }
+.keys td:first-child { color: var(--muted); }
+.keys td:last-child { text-align: right; }
+kbd { font: 9px var(--pixel); display: inline-block; padding: 6px 7px; margin: 2px; background: var(--stone-hi); border: 2px solid #000; box-shadow: inset 0 -3px 0 rgba(0,0,0,.4); color: var(--text); }
+
+.install { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+.install .card h3 { display: flex; align-items: center; gap: 10px; }
+.install ol { margin: 0; padding-left: 20px; color: var(--muted); font-size: 15px; }
+.install li { margin-bottom: 6px; }
+
+.final { text-align: center; padding: 110px 16px 120px;
+  background: radial-gradient(ellipse 50% 60% at 50% 100%, rgba(255,140,50,.22), transparent 70%), var(--ground); }
+
+footer { padding: 34px 16px; text-align: center; color: var(--muted); font-size: 14px; border-top: 2px solid var(--stone-hi); background: #08070c; }
+footer a { color: var(--muted); }
+
+.lightbox { position: fixed; inset: 0; background: rgba(4,3,8,.92); display: none; place-items: center; padding: 16px; z-index: 10; cursor: zoom-out; }
+.lightbox.open { display: grid; }
+.lightbox img { max-height: 92vh; width: auto; image-rendering: auto; border: 4px solid #000; box-shadow: 0 0 0 3px var(--line); }
+
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+@media (max-width: 820px) {
+  .gallery, .coop { grid-template-columns: 1fr; }
+  .moon { width: 44px; height: 44px; top: 6%; right: 7%; }
+  .btn { width: 100%; justify-content: center; }
+  section { padding: 72px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="stars" id="stars"></div>
+  <div class="moon"></div>
+  <div class="embers" id="embers"></div>
+  <div class="hills"></div>
+
+  <div class="hero-inner">
+    <img class="logo" src="icon.png" alt="" width="168" height="168">
+    <h1>Усталый<br>путник</h1>
+    <p class="tagline">Пиксельная action-RPG о страннике, который просто хотел передохнуть, а нашёл в таверне портал в подземелья. Один или с друзьями, до четырёх игроков.</p>
+    <div class="badges">
+      <span class="badge">БЕСПЛАТНО</span>
+      <span class="badge">1-4 ИГРОКА</span>
+      <span class="badge">РУССКИЙ ЯЗЫК</span>
+    </div>
+
+    <div class="downloads" id="downloads">
+      <a class="btn" data-os="windows" href="https://github.com/tiredtravelergames/tired-wanderer/releases/latest/download/TiredWanderer-Setup.exe">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 4.5 10 3.4v7.8H2zm9-1.2L22 2v9.2H11zM2 12.8h8v7.8l-8-1.1zm9 0h11V22l-11-1.5z"/></svg>
+        <span>Windows<small>установщик · 64-bit</small></span>
+      </a>
+      <a class="btn" data-os="mac" href="https://github.com/tiredtravelergames/tired-wanderer/releases/latest/download/TiredWanderer-macos.dmg">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg>
+        <span>macOS<small>DMG · Apple Silicon и Intel</small></span>
+      </a>
+      <a class="btn" data-os="linux" href="https://github.com/tiredtravelergames/tired-wanderer/releases/latest/download/TiredWanderer-linux.zip">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c-2.2 0-3.6 1.9-3.6 4.6 0 1.4.3 2.3-.6 3.6C6.6 12 5 14 5 16.6c0 .8.2 1.5.6 2-.6.5-1.6.9-1.6 1.8 0 1 1.4 1.3 3 1.6 1.1.2 1.9.7 2.8.7.7 0 1.2-.3 1.6-.7h1.2c.4.4.9.7 1.6.7.9 0 1.7-.5 2.8-.7 1.6-.3 3-.6 3-1.6 0-.9-1-1.3-1.6-1.8.4-.5.6-1.2.6-2 0-2.6-1.6-4.6-2.8-6.4-.9-1.3-.6-2.2-.6-3.6C15.6 3.9 14.2 2 12 2zm-1.4 4.2c.4 0 .7.5.7 1.1 0 .3-.1.5-.2.7l-.6-.2c.1-.1.1-.3.1-.5 0-.3-.1-.5-.2-.5s-.2.2-.2.5v.2l-.5-.2v-.1c0-.5.4-1 .9-1zm2.8 0c.5 0 .9.5.9 1v.1l-.5.2v-.2c0-.3-.1-.5-.2-.5s-.2.2-.2.5c0 .2 0 .4.1.5l-.6.2c-.1-.2-.2-.4-.2-.7 0-.6.3-1.1.7-1.1zM12 8.6c.9 0 2 .6 2 .9 0 .4-1.3 1.3-2 1.3s-2-.9-2-1.3c0-.3 1.1-.9 2-.9z"/></svg>
+        <span>Linux<small>x86_64 · 30 МБ</small></span>
+      </a>
+      <a class="btn" data-os="android" href="https://github.com/tiredtravelergames/tired-wanderer/releases/latest/download/TiredWanderer-android.apk">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8C2.67 8 2 8.67 2 9.5v7c0 .83.67 1.5 1.5 1.5S5 17.33 5 16.5v-7C5 8.67 4.33 8 3.5 8zm17 0c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5zm-4.97-5.84 1.3-1.3a.5.5 0 0 0-.7-.7l-1.48 1.48A5.84 5.84 0 0 0 12 1c-.96 0-1.86.23-2.66.63L7.85.15a.5.5 0 0 0-.7.7l1.31 1.31A5.97 5.97 0 0 0 6 7h12c0-1.99-.97-3.75-2.47-4.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z"/></svg>
+        <span>Android<small>APK · кооп по Wi-Fi</small></span>
+      </a>
+      <a class="btn" data-os="web" href="play/">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <span>Играть в браузере<small>и на iPhone · без установки</small></span>
+      </a>
+    </div>
+    <p class="version">Версия 1.0.0 · <a href="https://github.com/tiredtravelergames/tired-wanderer/releases">все релизы</a></p>
+  </div>
+  <a class="scroll-hint" href="#world">▼ ВНИЗ</a>
+</header>
+
+<section id="world" class="plain">
+  <div class="wrap">
+    <h2 class="reveal">Мир за вратами</h2>
+    <p class="lead reveal">Ты еле стоишь на ногах, когда добредаешь до таверны «Усталый путник». Хозяин Борд суёт тебе зелья и подарок на дорогу и между делом говорит, что внизу, под полом, кишат твари. А посреди зала у него стоит портал, и ведёт он куда глубже подвала.</p>
+    <div class="gallery reveal">
+      <figure><img class="frame" src="screenshots/dungeon.png" alt="Маг у портала в подземелье" loading="lazy"><figcaption>Маг у портала</figcaption></figure>
+      <div class="side">
+        <figure><img class="frame" src="screenshots/tavern.png" alt="Плут и хозяин таверны" loading="lazy"><figcaption>Плут в таверне</figcaption></figure>
+        <figure><img class="frame" src="screenshots/necro.png" alt="Некромант-призрак в подземелье" loading="lazy"><figcaption>Некромант</figcaption></figure>
+      </div>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><b>10</b><span>классов</span></div>
+      <div class="stat"><b>5</b><span>глав подземелий</span></div>
+      <div class="stat"><b>4</b><span>уровня сложности</span></div>
+      <div class="stat"><b>1-4</b><span>игрока в кооперативе</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2 class="reveal">Особенности</h2>
+    <p class="lead reveal">Дорога вниз идёт через катакомбы и склепы, тёмные чащи, огненные пещеры и ледяные залы. Между вылазками ты возвращаешься в таверну, и она меняется вместе с тобой: люди, которых ты вытащил из подземелий, остаются здесь и помогают.</p>
+    <div class="grid">
+      <div class="card reveal"><div class="ico">⚔️</div><h3>Живой бой</h3><p>Цепочки ударов, блок и парирование щитом, увороты, стрельба. Каждый враг бьёт по-своему, у каждого стража свой характер.</p></div>
+      <div class="card reveal"><div class="ico">✨</div><h3>Свой путь</h3><p>Десять классов и звёздное дерево умений. Начни кем угодно, со временем освой новые пути и собери героя под себя.</p></div>
+      <div class="card reveal"><div class="ico">🔨</div><h3>Снаряжение и кузня</h3><p>Оружие, броня, щиты, кольца и амулеты. Улучшай, чини и усиливай любимый клинок.</p></div>
+      <div class="card reveal"><div class="ico">🗝️</div><h3>Подземелья с секретами</h3><p>Запертые арены, засады, головоломки, ловушки и тайники для тех, кто смотрит внимательно.</p></div>
+      <div class="card reveal"><div class="ico">🎲</div><h3>Истории и случай</h3><p>Встречи, задания и странные события, где исход решает бросок кубика.</p></div>
+      <div class="card reveal"><div class="ico">🍺</div><h3>Таверна — твой дом</h3><p>Её можно отстроить, у её обитателей свои истории, а у героя своя внешность.</p></div>
+    </div>
+
+    <h2 class="reveal" style="margin-top:80px">Десять путей</h2>
+    <p class="lead reveal" style="margin-bottom:28px">Путь выбирается в таверне. Первый даётся даром, остальные придётся заслужить.</p>
+    <div class="classes reveal">
+      <span class="cls">ВОИН<small>ближний бой, оглушает</small></span>
+      <span class="cls">ЛУЧНИК<small>лук, арбалет, перекаты</small></span>
+      <span class="cls">СТРАЖ<small>щит и булава, живучий</small></span>
+      <span class="cls">ПЛУТ<small>кинжалы, очень быстрый</small></span>
+      <span class="cls">ПАЛАДИН<small>свет, лечит в бою</small></span>
+      <span class="cls">МАГ<small>посох и комбо заклинаний</small></span>
+      <span class="cls">НЕКРОМАНТ<small>призрак: кость, яд, кража жизни</small></span>
+      <span class="cls">ЖРЕЦ<small>свет и подъём павших</small></span>
+      <span class="cls">ДРУИД<small>корни, медведь, волки</small></span>
+      <span class="cls">БРОДЯГА<small>кулаки, любое оружие</small></span>
+    </div>
+  </div>
+</section>
+
+<section class="plain" id="coop">
+  <div class="wrap coop">
+    <div class="reveal">
+      <h2 style="text-align:left">Вместе веселее</h2>
+      <p style="color:var(--muted)">Кооператив на 2-4 игрока по сети. Квесты и опыт общие на команду, упавшего союзника можно поднять.</p>
+      <ol class="steps">
+        <li>Хост выбирает «Создать игру».</li>
+        <li>Друзья жмут «Присоединиться» и вводят IP хоста.</li>
+        <li>Хост нажимает «Старт». Погнали.</li>
+      </ol>
+      <div class="note">В локальной сети всё работает сразу. Через интернет хосту нужен проброс порта <code>7777 UDP</code>, или зайдите все в одну виртуальную сеть: Tailscale, Radmin VPN, ZeroTier.</div>
+    </div>
+    <div class="reveal">
+      <table class="keys">
+        <tr><td>Движение</td><td><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></td></tr>
+        <tr><td>Атака / тяжёлый удар</td><td><kbd>ЛКМ</kbd></td></tr>
+        <tr><td>Блок, выстрел</td><td><kbd>ПКМ</kbd></td></tr>
+        <tr><td>Уворот</td><td><kbd>ПРОБЕЛ</kbd></td></tr>
+        <tr><td>Приёмы класса</td><td><kbd>6</kbd>…<kbd>0</kbd></td></tr>
+        <tr><td>Действие</td><td><kbd>E</kbd></td></tr>
+        <tr><td>Инвентарь / журнал / карта / умения</td><td><kbd>I</kbd><kbd>J</kbd><kbd>M</kbd><kbd>K</kbd></td></tr>
+        <tr><td>Полный экран</td><td><kbd>F11</kbd></td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="install">
+  <div class="wrap">
+    <h2 class="reveal">Установка</h2>
+    <p class="lead reveal">Скачай, установи, играй. Сборки не подписаны платными сертификатами, поэтому при первом запуске система может переспросить.</p>
+    <div class="install">
+      <div class="card reveal"><h3>Windows</h3><ol><li>Запусти <code>TiredWanderer-Setup.exe</code> и пройди установку.</li><li>Если SmartScreen ругается: «Подробнее» → «Выполнить в любом случае».</li><li>Без установки: <a href="https://github.com/tiredtravelergames/tired-wanderer/releases/latest/download/TiredWanderer.exe">portable-версия</a>, один exe.</li></ol></div>
+      <div class="card reveal"><h3>macOS</h3><ol><li>Открой <code>TiredWanderer-macos.dmg</code> и перетащи игру в «Программы».</li><li>Если macOS пишет, что приложение «повреждено», это из-за отсутствия платной подписи Apple. Открой Терминал и выполни:<br><code>xattr -cr "/Applications/Tired Wanderer.app"</code></li><li>Дальше игра запускается как обычно.</li></ol></div>
+      <div class="card reveal"><h3>Android</h3><ol><li>Скачай <code>TiredWanderer-android.apk</code> на телефон и открой.</li><li>Разреши установку из этого источника, если Android спросит.</li><li>Кооператив: все телефоны в одной Wi-Fi сети, вводите IP хоста.</li></ol></div>
+      <div class="card reveal"><h3>Браузер и iPhone</h3><ol><li>Открой <a href="play/">страницу игры</a> и жми «Одиночная игра».</li><li>На iPhone: «Поделиться» → «На экран Домой», и игра откроется как приложение.</li><li>В браузере только одиночная игра.</li></ol></div>
+      <div class="card reveal"><h3>Linux</h3><ol><li>Распакуй <code>TiredWanderer-linux.zip</code>.</li><li><code>chmod +x TiredWanderer.x86_64</code></li><li>Запусти файл.</li></ol></div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap reveal">
+    <h2>Врата открыты</h2>
+    <p class="lead">Путник устал, но дорога ждёт.</p>
+    <a class="btn primary" id="final-btn" href="https://github.com/tiredtravelergames/tired-wanderer/releases/latest">
+      <span>Скачать игру<small>Windows · macOS · Linux</small></span>
+    </a>
+  </div>
+</section>
+
+<footer>
+  © 2026 tiredtravelergames · Сделано на <a href="https://godotengine.org">Godot</a> · <a href="https://github.com/tiredtravelergames/tired-wanderer">GitHub</a>
+</footer>
+
+<div class="lightbox" id="lightbox"><img alt=""></div>
+
+<script>
+(function () {
+  // stars
+  var s = document.getElementById('stars');
+  for (var i = 0; i < 70; i++) {
+    var d = document.createElement('i');
+    d.className = 'star';
+    d.style.left = (Math.random() * 100) + '%';
+    d.style.top = (Math.random() * 60) + '%';
+    d.style.setProperty('--d', (2 + Math.random() * 4).toFixed(1) + 's');
+    d.style.animationDelay = (Math.random() * 4).toFixed(1) + 's';
+    s.appendChild(d);
+  }
+  // embers rising from the gate
+  var e = document.getElementById('embers');
+  for (var j = 0; j < 36; j++) {
+    var m = document.createElement('i');
+    m.className = 'ember';
+    m.style.left = (50 + (Math.random() - 0.5) * 30) + '%';
+    m.style.setProperty('--d', (6 + Math.random() * 8).toFixed(1) + 's');
+    m.style.setProperty('--delay', (-Math.random() * 14).toFixed(1) + 's');
+    m.style.setProperty('--dx', ((Math.random() - 0.5) * 160).toFixed(0) + 'px');
+    if (Math.random() < 0.35) m.style.background = '#ffd27a';
+    e.appendChild(m);
+  }
+  // highlight the visitor's platform
+  var ua = navigator.userAgent.toLowerCase();
+  var touchMac = /macintosh/.test(ua) && navigator.maxTouchPoints > 1;   // iPad выдаёт себя за Mac
+  var os = /iphone|ipad|ipod/.test(ua) || touchMac ? 'web' : /android/.test(ua) ? 'android' : /mac/.test(ua) ? 'mac' : /win/.test(ua) ? 'windows' : /linux/.test(ua) ? 'linux' : null;
+  if (os) {
+    var btn = document.querySelector('.btn[data-os="' + os + '"]');
+    if (btn) {
+      btn.classList.add('primary');
+      btn.parentNode.insertBefore(btn, btn.parentNode.firstChild);
+      var fb = document.getElementById('final-btn');
+      fb.href = btn.href;
+      fb.querySelector('small').textContent = btn.querySelector('span').firstChild.textContent;
+    }
+  } else {
+    document.querySelector('.btn[data-os="windows"]').classList.add('primary');
+  }
+  // reveal on scroll
+  var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } });
+  }, { threshold: 0.12 }) : null;
+  document.querySelectorAll('.reveal').forEach(function (el) { io ? io.observe(el) : el.classList.add('in'); });
+  // lightbox
+  var lb = document.getElementById('lightbox');
+  document.querySelectorAll('.gallery img').forEach(function (img) {
+    img.addEventListener('click', function () { lb.querySelector('img').src = img.src; lb.classList.add('open'); });
+  });
+  lb.addEventListener('click', function () { lb.classList.remove('open'); });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') lb.classList.remove('open'); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+name: Windows installer
+
+# Builds TiredWanderer-Setup.exe from the portable TiredWanderer.exe attached to a release
+# and uploads it back to the same release.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v1.0.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Download portable build
+        shell: pwsh
+        run: gh release download $env:TAG --pattern "TiredWanderer.exe" --dir build/windows --clobber
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $version = $env:TAG.TrimStart('v')
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" "/DSourceExe=..\build\windows\TiredWanderer.exe" installer\tired-wanderer.iss
+
+      - name: Upload to release
+        shell: pwsh
+        run: gh release upload $env:TAG build/TiredWanderer-Setup.exe --clobber
